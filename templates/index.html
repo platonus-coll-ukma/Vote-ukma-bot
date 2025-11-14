@@ -1,0 +1,390 @@
+<!doctype html>
+<html lang="kk">
+<head>
+<meta charset="utf-8" />
+<meta name="viewport" content="width=device-width,initial-scale=1" />
+<title>Дауыс беру</title>
+<style>
+:root {
+  --bg-color: linear-gradient(120deg,#1f1c2c,#928dab);
+  --text-color: #fff;
+  --card-bg: rgba(255,255,255,0.05);
+  --candidate-bg: rgba(255,255,255,0.06);
+  --progress-bg: #444;
+  --progress-fill: #7c3aed;
+  --muted-color: #bbb;
+}
+
+body {
+  margin: 0;
+  font-family: Inter, sans-serif;
+  background: var(--bg-color);
+  color: var(--text-color);
+  min-height: 100vh;
+  padding: 20px;
+  transition: all 0.5s ease;
+}
+
+.theme-light {
+  --bg-color: #f3f4f6;
+  --text-color: #1f2937;
+  --card-bg: rgba(0,0,0,0.05);
+  --candidate-bg: rgba(0,0,0,0.06);
+  --progress-bg: #d1d5db;
+  --progress-fill: #3b82f6;
+  --muted-color: #6b7280;
+}
+
+.theme-gradient {
+  --bg-color: linear-gradient(120deg,#ff9a9e,#fbc2eb,#a6c1ee,#fbc2eb,#ff9a9e);
+  background-size: 400% 400%;
+  animation: gradientShift 15s ease infinite;
+  --text-color: #1f2937;
+  --card-bg: rgba(255,255,255,0.8);
+  --candidate-bg: rgba(255,255,255,0.7);
+  --progress-bg: #e5e7eb;
+  --progress-fill: #ec4899;
+  --muted-color: #6b7280;
+}
+
+@keyframes gradientShift {
+  0% { background-position: 0% 50%; }
+  50% { background-position: 100% 50%; }
+  100% { background-position: 0% 50%; }
+}
+
+.bg-wrap {
+  max-width: 1200px;
+  margin: 0 auto;
+  display: flex;
+  flex-direction: column;
+  gap: 20px;
+}
+
+.header {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+}
+
+.title {
+  font-size: 28px;
+  font-weight: 700;
+}
+
+.controls button {
+  background: none;
+  border: none;
+  color: var(--text-color);
+  font-size: 28px;
+  cursor: pointer;
+  padding: 8px;
+  border-radius: 8px;
+  transition: background-color 0.3s;
+}
+
+.controls button:hover {
+  background: rgba(255,255,255,0.1);
+}
+
+.grid {
+  display: grid;
+  grid-template-columns: 1fr;
+  gap: 20px;
+}
+
+.card {
+  background: var(--card-bg);
+  border-radius: 12px;
+  padding: 16px;
+  backdrop-filter: blur(10px);
+  border: 1px solid rgba(255,255,255,0.1);
+}
+
+.poll-title {
+  font-size: 20px;
+  margin-bottom: 12px;
+  font-weight: 600;
+}
+
+.candidate {
+  background: var(--candidate-bg);
+  border-radius: 8px;
+  padding: 12px;
+  margin: 8px 0;
+  display: flex;
+  align-items: center;
+  gap: 12px;
+  transition: transform 0.2s;
+}
+
+.candidate:hover {
+  transform: translateX(5px);
+}
+
+.candidate .meta {
+  display: flex;
+  flex-direction: column;
+  flex: 1;
+}
+
+.candidate .left {
+  display: flex;
+  align-items: center;
+  gap: 10px;
+  width: 40%;
+}
+
+.avatar {
+  width: 48px;
+  height: 48px;
+  border-radius: 8px;
+  flex-shrink: 0;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  background: var(--progress-bg);
+  color: var(--text-color);
+  font-size: 20px;
+  overflow: hidden;
+  border: 2px solid var(--progress-fill);
+}
+
+.avatar img {
+  width: 100%;
+  height: 100%;
+  object-fit: cover;
+}
+
+.progress-bar {
+  background: var(--progress-bg);
+  height: 12px;
+  border-radius: 6px;
+  width: 70%;
+  margin-left: 10px;
+  flex: 1;
+  overflow: hidden;
+}
+
+.progress-fill {
+  height: 100%;
+  border-radius: 6px;
+  background: var(--progress-fill);
+  transition: width 0.8s ease;
+}
+
+#sideMenu {
+  position: fixed;
+  top: 0;
+  right: -320px;
+  width: 300px;
+  height: 100vh;
+  background: rgba(0,0,0,0.95);
+  padding: 20px;
+  transition: right 0.3s ease;
+  display: flex;
+  flex-direction: column;
+  gap: 12px;
+  z-index: 100;
+  transform:translateX(320px);
+}
+
+#sideMenu.open {
+  right: 0;
+  transform:translateX(0);}
+}
+
+.side-title {
+  font-weight: 700;
+  margin-bottom: 8px;
+  color: #fff;
+}
+
+.theme-btn {
+  padding: 12px;
+  border-radius: 8px;
+  border: none;
+  background: #7c3aed;
+  color: #fff;
+  cursor: pointer;
+  width: 100%;
+  margin-bottom: 6px;
+  transition: all 0.3s;
+  font-weight: 500;
+}
+
+.theme-btn:hover {
+  background: #6d28d9;
+  transform: translateY(-2px);
+}
+
+.small-muted {
+  color: var(--muted-color);
+  font-size: 13px;
+}
+
+.winner-badge {
+  background: gold;
+  color: #000;
+  padding: 2px 8px;
+  border-radius: 12px;
+  font-size: 11px;
+  font-weight: bold;
+  margin-left: 8px;
+}
+
+.second-badge {
+  background: silver;
+  color: #000;
+  padding: 2px 8px;
+  border-radius: 12px;
+  font-size: 11px;
+  font-weight: bold;
+  margin-left: 8px;
+}
+
+.third-badge {
+  background: #cd7f32;
+  color: #000;
+  padding: 2px 8px;
+  border-radius: 12px;
+  font-size: 11px;
+  font-weight: bold;
+  margin-left: 8px;
+}
+
+@media (min-width: 768px) {
+  .grid {
+    grid-template-columns: 1fr 1fr;
+  }
+}
+</style>
+</head>
+<body class="theme-dark">
+<div class="bg-wrap">
+  <div class="header">
+    <div class="title">🏆 Дауыс беру</div>
+    <div class="controls">
+      <button id="settingsBtn">☰</button>
+    </div>
+  </div>
+  <div class="grid" id="pollContainer"></div>
+</div>
+
+<div id="sideMenu">
+  <div class="side-title">Тақырып</div>
+  <button class="theme-btn" data-theme="theme-dark">Қара</button>
+  <button class="theme-btn" data-theme="theme-light">Ашық</button>
+  <button class="theme-btn" data-theme="theme-gradient">Градиент</button>
+  <div class="small-muted" style="margin-top:12px; color: #fff;">Сайт 5 сек сайын жаңартылады</div>
+</div>
+
+<script>
+const pollContainer = document.getElementById("pollContainer");
+const settingsBtn = document.getElementById("settingsBtn");
+const sideMenu = document.getElementById("sideMenu");
+
+// Теманы сақтау
+function setTheme(themeName) {
+  document.body.className = themeName;
+  localStorage.setItem('preferredTheme', themeName);
+}
+
+// Сақталған теманы жүктеу
+const savedTheme = localStorage.getItem('preferredTheme');
+if (savedTheme) {
+  setTheme(savedTheme);
+}
+
+settingsBtn.addEventListener('click', (e) => {
+  e.stopPropagation();
+  sideMenu.classList.toggle('open');
+});
+
+document.addEventListener('click', (e) => {
+  if (!sideMenu.contains(e.target) && e.target !== settingsBtn) {
+    sideMenu.classList.remove('open');
+  }
+});
+
+document.querySelectorAll(".theme-btn").forEach(b => {
+  b.addEventListener('click', (e) => {
+    e.stopPropagation();
+    const theme = b.getAttribute('data-theme');
+    setTheme(theme);
+    sideMenu.classList.remove('open');
+  });
+});
+
+async function fetchPolls() {
+  try {
+    const res = await fetch('/api/polls');
+    const data = await res.json();
+    pollContainer.innerHTML = '';
+    
+    data.polls.forEach(p => {
+      const card = document.createElement('div');
+      card.className = 'card';
+      
+      let inner = `<div class="poll-title">${p.title} ${p.active ? '<span style="color:limegreen">(Ашық)</span>' : '<span style="color:#888">(Жабық)</span>'}</div>`;
+      
+      // Дауыстарды есептеу және реттеу
+      const totalVotes = p.candidates.reduce((a, c) => a + c.votes, 0);
+      
+      // Кандидаттарды дауыс саны бойынша кему ретімен реттеу
+      const sortedCandidates = [...p.candidates].sort((a, b) => b.votes - a.votes);
+      
+      sortedCandidates.forEach((c, index) => {
+        const percent = totalVotes ? Math.round((c.votes / totalVotes) * 100) : 0;
+        
+        // Жеңімпаз белгілері
+        let badge = '';
+        if (index === 0 && c.votes > 0) badge = '<span class="winner-badge">🥇 1-ші</span>';
+        else if (index === 1 && c.votes > 0) badge = '<span class="second-badge">🥈 2-ші</span>';
+        else if (index === 2 && c.votes > 0) badge = '<span class="third-badge">🥉 3-ші</span>';
+        
+        // Аватарды өңдеу
+        let avatar_html = `<div class="avatar" style="background:var(--progress-bg)">👤</div>`;
+        if (c.avatar) {
+          if (typeof c.avatar === 'string' && c.avatar.startsWith('emoji:')) {
+            const em = c.avatar.replace(/^emoji:/, '');
+            avatar_html = `<div class="avatar">${em}</div>`;
+          } else if (typeof c.avatar === 'string' && c.avatar.startsWith('/static/uploads/')) {
+            avatar_html = `<div class="avatar"><img src="${c.avatar}" alt="${c.name}"></div>`;
+          } else {
+            avatar_html = `<div class="avatar"><img src="${c.avatar}" alt="${c.name}"></div>`;
+          }
+        }
+        
+        inner += `
+          <div class="candidate">
+            <div class="left">
+              ${avatar_html}
+              <div class="meta">
+                <div style="font-weight:600; display:flex; align-items:center;">
+                  ${c.name} ${badge}
+                </div>
+                <div class="small-muted">${c.votes} дауыс • ${percent}%</div>
+              </div>
+            </div>
+            <div class="progress-bar">
+              <div class="progress-fill" style="width:${percent}%;"></div>
+            </div>
+          </div>`;
+      });
+      
+      card.innerHTML = inner;
+      pollContainer.appendChild(card);
+    });
+    
+  } catch (e) {
+    console.error(e);
+    pollContainer.innerHTML = "<div class='card'>Қате: серверге қосылу мүмкін болмай тұр.</div>";
+  }
+}
+
+fetchPolls();
+setInterval(fetchPolls, 5000);
+</script>
+</body>
+</html>
